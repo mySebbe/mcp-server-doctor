@@ -1,0 +1,10 @@
+{
+  "capabilities": {
+    "tools": true
+  },
+  "tools": [
+    {
+      "description": "Missing name and inputSchema"
+    }
+  ]
+}

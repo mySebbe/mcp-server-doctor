@@ -1,0 +1,25 @@
+{
+  "capabilities": {
+    "tools": true,
+    "resources": true,
+    "prompts": true
+  },
+  "tools": [
+    {
+      "name": "search_docs",
+      "description": "Search local documentation",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {"type": "string"}
+        }
+      }
+    }
+  ],
+  "resources": [
+    {"uri": "file:///docs/index.md", "name": "Docs index"}
+  ],
+  "prompts": [
+    {"name": "summarize", "description": "Summarize a document"}
+  ]
+}

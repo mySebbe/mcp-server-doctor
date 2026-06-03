@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mcp-server-doctor"
+version = "0.1.0"
+description = "Validate JSON MCP capability reports from files or stdin."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+authors = [{ name = "OSS Contributors" }]
+keywords = ["mcp", "cli", "validation"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "License :: OSI Approved :: MIT License",
+]
+
+[project.scripts]
+mcp-server-doctor = "mcp_server_doctor.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project.urls]
+Homepage = "https://github.com/mySebbe/mcp-server-doctor"
+Repository = "https://github.com/mySebbe/mcp-server-doctor"
+Issues = "https://github.com/mySebbe/mcp-server-doctor/issues"
+Changelog = "https://github.com/mySebbe/mcp-server-doctor/blob/main/CHANGELOG.md"
+
+[tool.setuptools.package-data]
+"mcp_server_doctor" = ["py.typed"]

@@ -2,6 +2,11 @@
 
 `mcp-server-doctor` validates JSON MCP capability reports from a file or stdin and emits pass/fail output as text or JSON.
 
+## 0.1.1 Highlights
+
+- Capability reports now validate MCP `resourceTemplates`.
+- Summaries include resource template counts and duplicate `uriTemplate` detection.
+
 ## Install
 
 ```bash

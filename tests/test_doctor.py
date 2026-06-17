@@ -12,9 +12,10 @@ from mcp_server_doctor.doctor import render_result, validate_report
 class DoctorTests(unittest.TestCase):
     def test_validate_report_accepts_capabilities_tools_resources_and_prompts(self):
         report = {
-            "capabilities": {"tools": True, "resources": True, "prompts": True},
+            "capabilities": {"tools": True, "resources": True, "resourceTemplates": True, "prompts": True},
             "tools": [{"name": "search", "description": "Search docs", "inputSchema": {"type": "object"}}],
             "resources": [{"uri": "file:///tmp/a.txt", "name": "a.txt"}],
+            "resourceTemplates": [{"uriTemplate": "file:///{path}", "name": "files"}],
             "prompts": [{"name": "summarize", "description": "Summarize text"}],
         }
 
@@ -23,6 +24,7 @@ class DoctorTests(unittest.TestCase):
         self.assertTrue(result["ok"])
         self.assertEqual(result["summary"]["tools"], 1)
         self.assertEqual(result["summary"]["resources"], 1)
+        self.assertEqual(result["summary"]["resourceTemplates"], 1)
         self.assertEqual(result["summary"]["prompts"], 1)
 
     def test_validate_report_reports_structural_failures(self):
@@ -32,6 +34,21 @@ class DoctorTests(unittest.TestCase):
         messages = "\n".join(issue["message"] for issue in result["issues"])
         self.assertIn("tools[0].name", messages)
         self.assertIn("tools[0].inputSchema", messages)
+
+    def test_validate_report_reports_resource_template_failures(self):
+        result = validate_report(
+            {
+                "capabilities": {"resourceTemplates": True},
+                "resourceTemplates": [{"name": 42}, {"uriTemplate": "file:///{path}"}, {"uriTemplate": "file:///{path}"}],
+            }
+        )
+
+        self.assertFalse(result["ok"])
+        messages = "\n".join(issue["message"] for issue in result["issues"])
+        warning_messages = "\n".join(warning["message"] for warning in result["warnings"])
+        self.assertIn("uriTemplate", messages)
+        self.assertIn("duplicates", messages)
+        self.assertIn("name should be a string", warning_messages)
 
     def test_render_result_text_mentions_pass_or_fail(self):
         passing = render_result({"ok": True, "issues": [], "warnings": [], "summary": {}}, "text")

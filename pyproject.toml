@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mcp-server-doctor"
-version = "0.1.0"
+version = "0.1.1"
 description = "Validate JSON MCP capability reports from files or stdin."
 readme = "README.md"
 requires-python = ">=3.11"

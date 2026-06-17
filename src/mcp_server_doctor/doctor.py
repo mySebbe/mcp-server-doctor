@@ -65,6 +65,29 @@ def _validate_resources(items: Any) -> list[dict[str, str]]:
     return issues
 
 
+def _validate_resource_templates(items: Any) -> list[dict[str, str]]:
+    issues: list[dict[str, str]] = []
+    if not isinstance(items, list):
+        return [_issue("error", "resourceTemplates", "resourceTemplates must be a list")]
+
+    seen: set[str] = set()
+    for index, item in enumerate(items):
+        path = f"resourceTemplates[{index}]"
+        if not isinstance(item, dict):
+            issues.append(_issue("error", path, f"{path} must be an object"))
+            continue
+        template = item.get("uriTemplate")
+        if not _is_nonempty_string(template):
+            issues.append(_issue("error", f"{path}.uriTemplate", f"{path}.uriTemplate must be a non-empty string"))
+        elif template in seen:
+            issues.append(_issue("error", f"{path}.uriTemplate", f"{path}.uriTemplate duplicates another resource template"))
+        else:
+            seen.add(template)
+        if "name" in item and not isinstance(item["name"], str):
+            issues.append(_issue("warning", f"{path}.name", f"{path}.name should be a string"))
+    return issues
+
+
 def validate_report(report: Any) -> dict[str, Any]:
     """Validate a parsed JSON MCP capabilities report."""
     issues: list[dict[str, str]] = []
@@ -79,7 +102,7 @@ def validate_report(report: Any) -> dict[str, Any]:
         issues.append(_issue("error", "capabilities", "capabilities must be an object when present"))
         capabilities = {}
 
-    expected_sections = ("tools", "resources", "prompts")
+    expected_sections = ("tools", "resources", "resourceTemplates", "prompts")
     for section in expected_sections:
         if capabilities.get(section) and section not in report:
             issues.append(_issue("error", section, f"capabilities.{section} is true but {section} is missing"))
@@ -92,6 +115,10 @@ def validate_report(report: Any) -> dict[str, Any]:
         for item in _validate_resources(report["resources"]):
             (warnings if item["severity"] == "warning" else issues).append(item)
 
+    if "resourceTemplates" in report:
+        for item in _validate_resource_templates(report["resourceTemplates"]):
+            (warnings if item["severity"] == "warning" else issues).append(item)
+
     if "prompts" in report:
         for item in _validate_named_items(report["prompts"], "prompts"):
             (warnings if item["severity"] == "warning" else issues).append(item)
@@ -99,6 +126,7 @@ def validate_report(report: Any) -> dict[str, Any]:
     summary = {
         "tools": len(report.get("tools", [])) if isinstance(report.get("tools", []), list) else 0,
         "resources": len(report.get("resources", [])) if isinstance(report.get("resources", []), list) else 0,
+        "resourceTemplates": len(report.get("resourceTemplates", [])) if isinstance(report.get("resourceTemplates", []), list) else 0,
         "prompts": len(report.get("prompts", [])) if isinstance(report.get("prompts", []), list) else 0,
         "capabilities": sorted(capabilities.keys()) if isinstance(capabilities, dict) else [],
     }

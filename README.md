@@ -2,10 +2,10 @@
 
 `mcp-server-doctor` validates JSON MCP capability reports from a file or stdin and emits pass/fail output as text or JSON.
 
-## 0.1.1 Highlights
+## 0.1.2 Highlights
 
-- Capability reports now validate MCP `resourceTemplates`.
-- Summaries include resource template counts and duplicate `uriTemplate` detection.
+- CI users can now pass `--strict` to treat warnings as validation failures.
+- JSON summaries include the active strict-mode setting for auditability.
 
 ## Install
 
@@ -18,13 +18,14 @@ python -m pip install .
 ```bash
 mcp-server-doctor report.json
 cat report.json | mcp-server-doctor --format json
+cat report.json | mcp-server-doctor --format json --strict
 python -m mcp_server_doctor --format text < report.json
 ```
 
 Exit codes:
 
 - `0`: validation passed
-- `1`: validation failed
+- `1`: validation failed, or warnings were present with `--strict`
 - `2`: invalid input, unreadable file, or invalid JSON
 
 ## Report Shape

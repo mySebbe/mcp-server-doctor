@@ -133,6 +133,17 @@ def validate_report(report: Any) -> dict[str, Any]:
     return {"ok": not issues, "issues": issues, "warnings": warnings, "summary": summary}
 
 
+def apply_strict_mode(result: dict[str, Any], strict: bool = False) -> dict[str, Any]:
+    """Treat warnings as blocking failures when strict mode is enabled."""
+    updated = dict(result)
+    summary = dict(result.get("summary") or {})
+    summary["strict"] = strict
+    updated["summary"] = summary
+    if strict and result.get("warnings"):
+        updated["ok"] = False
+    return updated
+
+
 def render_result(result: dict[str, Any], output_format: str = "text") -> str:
     """Render validation result as JSON or human-readable text."""
     if output_format == "json":

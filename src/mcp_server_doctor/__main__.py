@@ -6,7 +6,7 @@ import argparse
 import sys
 
 from ._version import __version__
-from .doctor import load_report, render_result, validate_report
+from .doctor import apply_strict_mode, load_report, render_result, validate_report
 
 
 def _read_input(path: str | None) -> str:
@@ -21,6 +21,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     parser.add_argument("path", nargs="?", help="Report JSON path. Reads stdin when omitted or '-'.")
     parser.add_argument("--format", choices=("text", "json"), default="text", help="Output format.")
+    parser.add_argument("--strict", action="store_true", help="Treat warnings as validation failures.")
     return parser
 
 
@@ -36,7 +37,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"mcp-server-doctor: invalid JSON: {exc}", file=sys.stderr)
         return 2
 
-    result = validate_report(report)
+    result = apply_strict_mode(validate_report(report), args.strict)
     sys.stdout.write(render_result(result, args.format))
     return 0 if result["ok"] else 1
 

@@ -4,17 +4,16 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mcp-server-doctor"
-version = "0.1.1"
+version = "0.1.2"
 description = "Validate JSON MCP capability reports from files or stdin."
 readme = "README.md"
 requires-python = ">=3.11"
-license = { file = "LICENSE" }
+license = "MIT"
 authors = [{ name = "OSS Contributors" }]
 keywords = ["mcp", "cli", "validation"]
 classifiers = [
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.11",
-  "License :: OSI Approved :: MIT License",
 ]
 
 [project.scripts]

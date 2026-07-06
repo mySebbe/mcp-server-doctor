@@ -6,7 +6,7 @@ import unittest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
-from mcp_server_doctor.doctor import render_result, validate_report
+from mcp_server_doctor.doctor import apply_strict_mode, render_result, validate_report
 
 
 class DoctorTests(unittest.TestCase):
@@ -58,6 +58,15 @@ class DoctorTests(unittest.TestCase):
         self.assertIn("FAIL", failing)
         self.assertIn("bad", failing)
 
+    def test_apply_strict_mode_treats_warnings_as_failures(self):
+        result = validate_report({"resources": [{"uri": "file:///tmp/a.txt", "name": 42}]})
+
+        strict = apply_strict_mode(result, strict=True)
+
+        self.assertTrue(result["ok"])
+        self.assertFalse(strict["ok"])
+        self.assertTrue(strict["summary"]["strict"])
+
     def test_cli_reads_stdin_and_emits_json(self):
         payload = json.dumps({"capabilities": {"tools": True}, "tools": []})
         env = os.environ.copy()
@@ -74,6 +83,23 @@ class DoctorTests(unittest.TestCase):
 
         self.assertEqual(completed.returncode, 0, completed.stderr)
         self.assertTrue(json.loads(completed.stdout)["ok"])
+
+    def test_cli_strict_mode_returns_nonzero_for_warnings(self):
+        payload = json.dumps({"resources": [{"uri": "file:///tmp/a.txt", "name": 42}]})
+        env = os.environ.copy()
+        env["PYTHONPATH"] = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src"))
+
+        completed = subprocess.run(
+            [sys.executable, "-m", "mcp_server_doctor", "--format", "json", "--strict"],
+            input=payload,
+            text=True,
+            capture_output=True,
+            env=env,
+            check=False,
+        )
+
+        self.assertEqual(completed.returncode, 1)
+        self.assertTrue(json.loads(completed.stdout)["summary"]["strict"])
 
 
 if __name__ == "__main__":

@@ -6,7 +6,10 @@ The format is based on Keep a Changelog, and this project uses semantic versioni
 
 ## [Unreleased]
 
-- No unreleased changes yet.
+- Added a 10 MiB default input limit for file and stdin reports, with the configurable `--max-input-bytes` option.
+- Oversized input is rejected before JSON parsing, using bounded reads for both files and stdin.
+- Documented and tested duplicate tool, resource, and prompt identifiers as blocking integrity errors.
+- Added a null-capabilities edge-case guard and the July 2026 security review.
 
 ## [0.1.2] - 2026-07-06
 

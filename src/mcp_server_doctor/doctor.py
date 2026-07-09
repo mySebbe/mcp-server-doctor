@@ -98,7 +98,9 @@ def validate_report(report: Any) -> dict[str, Any]:
         return {"ok": False, "issues": [issue], "warnings": [], "summary": {}}
 
     capabilities = report.get("capabilities", {})
-    if capabilities is not None and not isinstance(capabilities, dict):
+    if capabilities is None:
+        capabilities = {}
+    elif not isinstance(capabilities, dict):
         issues.append(_issue("error", "capabilities", "capabilities must be an object when present"))
         capabilities = {}
 
